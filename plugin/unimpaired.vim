@@ -38,6 +38,17 @@ function! s:maps() abort
   endfor
 endfunction
 
+function! s:oper_map(lhs, rhs, opers, ...)
+  " Wrapper around s:map() for operator pending mode
+  " Uses and <expr> mapping to 
+  "   check if v:operator is in a:opers, and maps lhs to rhs if so, otherwise not.
+  " Use optional arg to specify special map-<> arguments
+
+  let map_args = a:0 ? a:1 : ''
+  call s:map('o', a:lhs, "\'".a:opers."\' =~ v:operator ? \'<Esc>".a:rhs."\' : \'".a:lhs."\'", '<expr>'.map_args)
+  " no need to escape() double quotes here :)
+endfunction
+
 " Section: Next and previous
 
 function! s:MapNextFamily(map,cmd) abort
@@ -257,12 +268,14 @@ endfunction
 function! s:option_map(letter, option, mode) abort
   call s:map('n', '[o'.a:letter, ':'.a:mode.' '.a:option.'<C-R>=<SID>statusbump()<CR><CR>')
   call s:map('n', ']o'.a:letter, ':'.a:mode.' no'.a:option.'<C-R>=<SID>statusbump()<CR><CR>')
-  call s:map('n', 'yo'.a:letter, ':'.a:mode.' <C-R>=<SID>toggle("'.a:option.'")<CR><CR>')
+  call s:oper_map( 'o'.a:letter, ':'.a:mode.' <C-R>=<SID>toggle("'.a:option.'")<CR><CR>', 'yc=')
+  " call s:map('n', 'yo'.a:letter, ':'.a:mode.' <C-R>=<SID>toggle("'.a:option.'")<CR><CR>') " original
+  " call s:map('o',  'o'.a:letter, "\'yc=\' =~ v:operator ? \'<Esc>:".a:mode." <C-R>=<SID>toggle(\"".a:option."\")<CR><CR>\' : \'o".a:letter."\'", '<expr>')	" works, but it's too hard to decipher... use s:oper_map().
 endfunction
 
 call s:map('n', '[ob', ':set background=light<CR>')
 call s:map('n', ']ob', ':set background=dark<CR>')
-call s:map('n', 'yob', ':set background=<C-R>=&background == "dark" ? "light" : "dark"<CR><CR>')
+call s:oper_map( 'ob', ':set background=<C-R>=&background == "dark" ? "light" : "dark"<CR><CR>', 'yc=')
 call s:option_map('c', 'cursorline', 'setlocal')
 call s:option_map('-', 'cursorline', 'setlocal')
 call s:option_map('_', 'cursorline', 'setlocal')
@@ -270,7 +283,7 @@ call s:option_map('u', 'cursorcolumn', 'setlocal')
 call s:option_map('<Bar>', 'cursorcolumn', 'setlocal')
 call s:map('n', '[od', ':diffthis<CR>')
 call s:map('n', ']od', ':diffoff<CR>')
-call s:map('n', 'yod', ':<C-R>=&diff ? "diffoff" : "diffthis"<CR><CR>')
+call s:oper_map( 'od', ':<C-R>=&diff ? "diffoff" : "diffthis"<CR><CR>', 'yc=')
 call s:option_map('h', 'hlsearch', 'set')
 call s:option_map('i', 'ignorecase', 'set')
 call s:option_map('l', 'list', 'setlocal')
@@ -280,27 +293,13 @@ call s:option_map('s', 'spell', 'setlocal')
 call s:option_map('w', 'wrap', 'setlocal')
 call s:map('n', '[ov', ':set virtualedit+=all<CR>')
 call s:map('n', ']ov', ':set virtualedit-=all<CR>')
-call s:map('n', 'yov', ':set <C-R>=(&virtualedit =~# "all") ? "virtualedit-=all" : "virtualedit+=all"<CR><CR>')
+call s:oper_map( 'ov', ':set <C-R>=(&virtualedit =~# "all") ? "virtualedit-=all" : "virtualedit+=all"<CR><CR>', 'yc=')
 call s:map('n', '[ox', ':set cursorline cursorcolumn<CR>')
 call s:map('n', ']ox', ':set nocursorline nocursorcolumn<CR>')
-call s:map('n', 'yox', ':set <C-R>=<SID>cursor_options()<CR><CR>')
+call s:oper_map( 'ox', ':set <C-R>=<SID>cursor_options()<CR><CR>', 'yc=')
 call s:map('n', '[o+', ':set cursorline cursorcolumn<CR>')
 call s:map('n', ']o+', ':set nocursorline nocursorcolumn<CR>')
-call s:map('n', 'yo+', ':set <C-R>=<SID>cursor_options()<CR><CR>')
-
-function! s:legacy_option_map(letter) abort
-  let y = get(get(g:, 'nremap', {}), 'y', 'y')
-  return y . 'o' . a:letter . ':echo "Use ' . y . 'o' . a:letter . ' instead"' . "\<CR>"
-endfunction
-
-if empty(maparg('co', 'n')) && empty(maparg('c', 'n'))
-  nmap <silent><expr> co <SID>legacy_option_map(nr2char(getchar()))
-  nnoremap cop <Nop>
-endif
-if empty(maparg('=o', 'n')) && empty(maparg('=', 'n'))
-  nmap <silent><expr> =o <SID>legacy_option_map(nr2char(getchar()))
-  nnoremap =op <Nop>
-endif
+call s:oper_map( 'o+', ':set <C-R>=<SID>cursor_options()<CR><CR>', 'yc=')
 
 function! s:setup_paste() abort
   let s:paste = &paste
@@ -324,7 +323,7 @@ nnoremap <silent> <Plug>unimpairedPaste :call <SID>setup_paste()<CR>
 
 call s:map('n', '[op', ':call <SID>setup_paste()<CR>O', '<silent>')
 call s:map('n', ']op', ':call <SID>setup_paste()<CR>o', '<silent>')
-call s:map('n', 'yop', ':call <SID>setup_paste()<CR>0C', '<silent>')
+call s:oper_map( 'op', ':call <SID>setup_paste()<CR>0C', 'yc=', '<silent>')
 
 " Section: Put
 
