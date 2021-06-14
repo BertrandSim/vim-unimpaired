@@ -38,12 +38,14 @@ function! s:maps() abort
   endfor
 endfunction
 
-function! s:oper_map(lhs, rhs, opers)
-  " wrapper around s:map() for operator pending mode
-  " uses and <expr> mapping to 
-  " check if v:operator is in a:opers, and maps lhs to rhs if so, otherwise not.
+function! s:oper_map(lhs, rhs, opers, ...)
+  " Wrapper around s:map() for operator pending mode
+  " Uses and <expr> mapping to 
+  "   check if v:operator is in a:opers, and maps lhs to rhs if so, otherwise not.
+  " Use optional arg to specify special map-<> arguments
 
-  call s:map('o', a:lhs, "\'".a:opers."\' =~ v:operator ? \'<Esc>".a:rhs."\' : \'".a:lhs."\'", '<expr>')
+  let map_args = a:0 ? a:1 : ''
+  call s:map('o', a:lhs, "\'".a:opers."\' =~ v:operator ? \'<Esc>".a:rhs."\' : \'".a:lhs."\'", '<expr>'.map_args)
   " no need to escape() double quotes here :)
 endfunction
 
@@ -321,7 +323,7 @@ nnoremap <silent> <Plug>unimpairedPaste :call <SID>setup_paste()<CR>
 
 call s:map('n', '[op', ':call <SID>setup_paste()<CR>O', '<silent>')
 call s:map('n', ']op', ':call <SID>setup_paste()<CR>o', '<silent>')
-call s:oper_map( 'op', ':call <SID>setup_paste()<CR>0C', '<silent>', 'yc=')
+call s:oper_map( 'op', ':call <SID>setup_paste()<CR>0C', 'yc=', '<silent>')
 
 " Section: Put
 
