@@ -38,6 +38,15 @@ function! s:maps() abort
   endfor
 endfunction
 
+function! s:oper_map(lhs, rhs, opers)
+  " wrapper around s:map() for operator pending mode
+  " uses and <expr> mapping to 
+  " check if v:operator is in a:opers, and maps lhs to rhs if so, otherwise not.
+
+  call s:map('o', a:lhs, "\'".a:opers."\' =~ v:operator ? \'<Esc>".a:rhs."\' : \'".a:lhs."\'", '<expr>')
+  " no need to escape() double quotes here :)
+endfunction
+
 " Section: Next and previous
 
 function! s:MapNextFamily(map,cmd) abort
@@ -254,21 +263,12 @@ function! s:cursor_options() abort
   return &cursorline && &cursorcolumn ? 'nocursorline nocursorcolumn' : 'cursorline cursorcolumn'
 endfunction
 
-function! s:oper_map(lhs, rhs, opers)
-  " wrapper around s:map() for operator pending mode
-  " uses and <expr> mapping to 
-  " check if v:operator is in a:opers, and maps lhs to rhs if so, otherwise not.
-
-  call s:map('o', a:lhs, "\'".a:opers."\' =~ v:operator ? \'<Esc>".a:rhs."\' : \'".a:lhs."\'", '<expr>')
-  " no need to escape() double quotes here :)
-endfunction
-
 function! s:option_map(letter, option, mode) abort
   call s:map('n', '[o'.a:letter, ':'.a:mode.' '.a:option.'<C-R>=<SID>statusbump()<CR><CR>')
   call s:map('n', ']o'.a:letter, ':'.a:mode.' no'.a:option.'<C-R>=<SID>statusbump()<CR><CR>')
   call s:oper_map( 'o'.a:letter, ':'.a:mode.' <C-R>=<SID>toggle("'.a:option.'")<CR><CR>', 'yc=')
-  " call s:map('o',  'o'.a:letter, "\'yc=\' =~ v:operator ? \'<Esc>:".a:mode." <C-R>=<SID>toggle(\"".a:option."\")<CR><CR>\' : \'o".a:letter."\'", '<expr>')	" ok, but it's too hard to decipher... use s:oper_map().
   " call s:map('n', 'yo'.a:letter, ':'.a:mode.' <C-R>=<SID>toggle("'.a:option.'")<CR><CR>') " original
+  " call s:map('o',  'o'.a:letter, "\'yc=\' =~ v:operator ? \'<Esc>:".a:mode." <C-R>=<SID>toggle(\"".a:option."\")<CR><CR>\' : \'o".a:letter."\'", '<expr>')	" works, but it's too hard to decipher... use s:oper_map().
 endfunction
 
 call s:map('n', '[ob', ':set background=light<CR>')
