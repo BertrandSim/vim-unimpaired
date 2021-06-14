@@ -273,7 +273,7 @@ endfunction
 
 call s:map('n', '[ob', ':set background=light<CR>')
 call s:map('n', ']ob', ':set background=dark<CR>')
-call s:map('n', 'yob', ':set background=<C-R>=&background == "dark" ? "light" : "dark"<CR><CR>')
+call s:oper_map( 'ob', ':set background=<C-R>=&background == "dark" ? "light" : "dark"<CR><CR>', 'yc=')
 call s:option_map('c', 'cursorline', 'setlocal')
 call s:option_map('-', 'cursorline', 'setlocal')
 call s:option_map('_', 'cursorline', 'setlocal')
@@ -281,7 +281,7 @@ call s:option_map('u', 'cursorcolumn', 'setlocal')
 call s:option_map('<Bar>', 'cursorcolumn', 'setlocal')
 call s:map('n', '[od', ':diffthis<CR>')
 call s:map('n', ']od', ':diffoff<CR>')
-call s:map('n', 'yod', ':<C-R>=&diff ? "diffoff" : "diffthis"<CR><CR>')
+call s:oper_map( 'od', ':<C-R>=&diff ? "diffoff" : "diffthis"<CR><CR>', 'yc=')
 call s:option_map('h', 'hlsearch', 'set')
 call s:option_map('i', 'ignorecase', 'set')
 call s:option_map('l', 'list', 'setlocal')
@@ -291,13 +291,13 @@ call s:option_map('s', 'spell', 'setlocal')
 call s:option_map('w', 'wrap', 'setlocal')
 call s:map('n', '[ov', ':set virtualedit+=all<CR>')
 call s:map('n', ']ov', ':set virtualedit-=all<CR>')
-call s:map('n', 'yov', ':set <C-R>=(&virtualedit =~# "all") ? "virtualedit-=all" : "virtualedit+=all"<CR><CR>')
+call s:oper_map( 'ov', ':set <C-R>=(&virtualedit =~# "all") ? "virtualedit-=all" : "virtualedit+=all"<CR><CR>', 'yc=')
 call s:map('n', '[ox', ':set cursorline cursorcolumn<CR>')
 call s:map('n', ']ox', ':set nocursorline nocursorcolumn<CR>')
-call s:map('n', 'yox', ':set <C-R>=<SID>cursor_options()<CR><CR>')
+call s:oper_map( 'ox', ':set <C-R>=<SID>cursor_options()<CR><CR>', 'yc=')
 call s:map('n', '[o+', ':set cursorline cursorcolumn<CR>')
 call s:map('n', ']o+', ':set nocursorline nocursorcolumn<CR>')
-call s:map('n', 'yo+', ':set <C-R>=<SID>cursor_options()<CR><CR>')
+call s:oper_map( 'o+', ':set <C-R>=<SID>cursor_options()<CR><CR>', 'yc=')
 
 " function! s:legacy_option_map(letter) abort
 "   let y = get(get(g:, 'nremap', {}), 'y', 'y')
@@ -335,7 +335,7 @@ nnoremap <silent> <Plug>unimpairedPaste :call <SID>setup_paste()<CR>
 
 call s:map('n', '[op', ':call <SID>setup_paste()<CR>O', '<silent>')
 call s:map('n', ']op', ':call <SID>setup_paste()<CR>o', '<silent>')
-call s:map('n', 'yop', ':call <SID>setup_paste()<CR>0C', '<silent>')
+call s:oper_map( 'op', ':call <SID>setup_paste()<CR>0C', '<silent>', 'yc=')
 
 " Section: Put
 
