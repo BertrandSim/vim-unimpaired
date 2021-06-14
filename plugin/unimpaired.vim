@@ -257,7 +257,8 @@ endfunction
 function! s:option_map(letter, option, mode) abort
   call s:map('n', '[o'.a:letter, ':'.a:mode.' '.a:option.'<C-R>=<SID>statusbump()<CR><CR>')
   call s:map('n', ']o'.a:letter, ':'.a:mode.' no'.a:option.'<C-R>=<SID>statusbump()<CR><CR>')
-  call s:map('n', 'yo'.a:letter, ':'.a:mode.' <C-R>=<SID>toggle("'.a:option.'")<CR><CR>')
+  call s:map('o',  'o'.a:letter, "\'yc=\' =~ v:operator ? \'<Esc>:".a:mode." <C-R>=<SID>toggle(\"".a:option."\")<CR><CR>\' : \'o".a:letter."\'", '<expr>')	 
+  " call s:map('n', 'yo'.a:letter, ':'.a:mode.' <C-R>=<SID>toggle("'.a:option.'")<CR><CR>') " original
 endfunction
 
 call s:map('n', '[ob', ':set background=light<CR>')
@@ -288,19 +289,19 @@ call s:map('n', '[o+', ':set cursorline cursorcolumn<CR>')
 call s:map('n', ']o+', ':set nocursorline nocursorcolumn<CR>')
 call s:map('n', 'yo+', ':set <C-R>=<SID>cursor_options()<CR><CR>')
 
-function! s:legacy_option_map(letter) abort
-  let y = get(get(g:, 'nremap', {}), 'y', 'y')
-  return y . 'o' . a:letter . ':echo "Use ' . y . 'o' . a:letter . ' instead"' . "\<CR>"
-endfunction
-
-if empty(maparg('co', 'n')) && empty(maparg('c', 'n'))
-  nmap <silent><expr> co <SID>legacy_option_map(nr2char(getchar()))
-  nnoremap cop <Nop>
-endif
-if empty(maparg('=o', 'n')) && empty(maparg('=', 'n'))
-  nmap <silent><expr> =o <SID>legacy_option_map(nr2char(getchar()))
-  nnoremap =op <Nop>
-endif
+" function! s:legacy_option_map(letter) abort
+"   let y = get(get(g:, 'nremap', {}), 'y', 'y')
+"   return y . 'o' . a:letter . ':echo "Use ' . y . 'o' . a:letter . ' instead"' . "\<CR>"
+" endfunction
+" 
+" if empty(maparg('co', 'n')) && empty(maparg('c', 'n'))
+"   nmap <silent><expr> co <SID>legacy_option_map(nr2char(getchar()))
+"   nnoremap cop <Nop>
+" endif
+" if empty(maparg('=o', 'n')) && empty(maparg('=', 'n'))
+"   nmap <silent><expr> =o <SID>legacy_option_map(nr2char(getchar()))
+"   nnoremap =op <Nop>
+" endif
 
 function! s:setup_paste() abort
   let s:paste = &paste
